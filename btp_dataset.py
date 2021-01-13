@@ -11,7 +11,7 @@ class BtpDataset(Dataset):
             csv_file (string): path to csv file
             normalize (bool): whether to normalize the data in [-1,1]
         """
-        df = pd.read_csv(csv_file, sep=";")
+        df = pd.read_csv(csv_file, sep=",")
         df['Timestamp'] = pd.to_datetime(df["data_column"].map(str) + " " + df["orario_column"], dayfirst=True)
         df = df.drop(['data_column', 'orario_column'], axis=1).set_index("Timestamp")
         btp_price = df.BTP_Price
