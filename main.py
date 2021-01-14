@@ -134,9 +134,11 @@ for epoch in range(opt.epochs):
         netD.zero_grad()
         real = data.to(device)
         batch_size, seq_len = real.size(0), real.size(1)
-        label = torch.full((batch_size, seq_len, 1), real_label, device=device)
+        label = torch.full((batch_size, seq_len, 1), real_label, device=device, dtype= torch.float)
 
         output = netD(real)
+        output = torch.FloatTensor(output)
+        label = torch.FloatTensor(label)
         errD_real = criterion(output, label)
         errD_real.backward()
         D_x = output.mean().item()
