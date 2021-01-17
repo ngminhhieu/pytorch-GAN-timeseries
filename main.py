@@ -220,8 +220,8 @@ for epoch in range(opt.epochs):
     # torchvision.utils.save_image(fake_plot, os.path.join(opt.imf, opt.run_tag+'_epoch'+str(epoch)+'.jpg'))
     if (epoch % opt.tensorboard_image_every == 0) or (epoch == (opt.epochs - 1)):
         writer.add_image("Fake", fake_plot, epoch)
-    plt.plot(real_display, color='red', label='real')
-    plt.plot(fake, color='red', label='fake')
+    plt.plot(real_display[:, :, 0], color='red', label='real')
+    plt.plot(fake[:, :, 0], color='red', label='fake')
     plt.legend()
     plt.savefig('log/real_fake.png')
     plt.close()
