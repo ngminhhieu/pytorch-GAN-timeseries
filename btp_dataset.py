@@ -5,7 +5,7 @@ import numpy as np
 
 class BtpDataset(Dataset):
     """Btp time series dataset."""
-    def __init__(self, csv_file, normalize=True):
+    def __init__(self, csv_file, seq_len, normalize=True):
         """
         Args:
             csv_file (string): path to csv file
@@ -14,10 +14,12 @@ class BtpDataset(Dataset):
         df = pd.read_csv(csv_file, sep=",")
         df['Timestamp'] = pd.to_datetime(df["data_column"].map(str) + " " + df["orario_column"], dayfirst=True)
         df = df.drop(['data_column', 'orario_column'], axis=1).set_index("Timestamp")
-        btp_price = df.BTP_Price
-        data = torch.from_numpy(np.expand_dims(np.array([group[1] for group in btp_price.groupby(df.index.date)]), -1)).float()
-        self.data = self.normalize(data) if normalize else data
-        self.seq_len = data.size(1)
+        data = df.to_numpy()
+        data_for_lstm = np.empty(shape=(data.shape[0]-seq_len, seq_len, data.shape[1]))
+        for i in range(data.shape[0]-seq_len):
+            data_for_lstm[i, :, :] = data[i:i+seq_len]
+        
+        self.data = self.normalize(data_for_lstm) if normalize else data_for_lstm
         
         #Estimates distribution parameters of deltas (Gaussian) from normalized data
         original_deltas = data[:, -1] - data[:, 0]

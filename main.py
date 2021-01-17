@@ -68,8 +68,10 @@ cudnn.benchmark = True
 if torch.cuda.is_available() and not opt.cuda:
     print("You have a cuda device, so you might want to run with --cuda as option")
 
+seq_len = 24
+
 if opt.dataset == "btp":
-    dataset = BtpDataset(opt.dataset_path)
+    dataset = BtpDataset(opt.dataset_path, seq_len)
 assert dataset
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=opt.batchSize,
                                          shuffle=True, num_workers=int(opt.workers))
@@ -77,7 +79,6 @@ dataloader = torch.utils.data.DataLoader(dataset, batch_size=opt.batchSize,
 device = torch.device("cuda:0" if opt.cuda else "cpu")
 nz = int(opt.nz)
 #Retrieve the sequence length as first dimension of a sequence in the dataset
-seq_len = dataset[0].size(0)
 #An additional input is needed for the delta
 in_dim = opt.nz + 1 if opt.delta_condition else opt.nz
 
@@ -105,12 +106,6 @@ criterion = nn.BCELoss().to(device)
 delta_criterion = nn.MSELoss().to(device)
 
 #Generate fixed noise to be used for visualization
-fixed_noise = torch.randn(opt.batchSize, seq_len, nz, device=device)
-
-if opt.delta_condition:
-    #Sample both deltas and noise for visualization
-    deltas = dataset.sample_deltas(opt.batchSize).unsqueeze(2).repeat(1, seq_len, 1)
-    fixed_noise = torch.cat((fixed_noise, deltas), dim=2)
 
 real_label = 1
 fake_label = 0
@@ -126,6 +121,12 @@ for epoch in range(opt.epochs):
         #Save just first batch of real data for displaying
         if i == 0:
             real_display = data.cpu()
+            fixed_noise = torch.randn(real_display.size(0), seq_len, nz, device=device)
+
+            if opt.delta_condition:
+                #Sample both deltas and noise for visualization
+                deltas = dataset.sample_deltas(real_display.size(0)).unsqueeze(2).repeat(1, seq_len, 1)
+                fixed_noise = torch.cat((fixed_noise, deltas), dim=2)
       
         ############################
         # (1) Update D network: maximize log(D(x)) + log(1 - D(G(z)))
@@ -215,7 +216,7 @@ for epoch in range(opt.epochs):
     if (epoch % opt.tensorboard_image_every == 0) or (epoch == (opt.epochs - 1)):
         writer.add_image("Real", real_plot, epoch)
     
-    fake = netG(fixed_noise)
+    fake = netG(real_display)
     fake_plot = time_series_to_plot(dataset.denormalize(fake))
     # torchvision.utils.save_image(fake_plot, os.path.join(opt.imf, opt.run_tag+'_epoch'+str(epoch)+'.jpg'))
     if (epoch % opt.tensorboard_image_every == 0) or (epoch == (opt.epochs - 1)):
@@ -224,8 +225,8 @@ for epoch in range(opt.epochs):
     if epoch == (opt.epochs - 1):
         real_plot_numpy = dataset.denormalize(real_display).detach().numpy()
         fake_plot_numpy = dataset.denormalize(fake).detach().numpy()
-        plt.plot(real_plot_numpy[:, :, 0], color='red', label='real')
-        plt.plot(fake_plot_numpy[:, :, 0], color='blue', label='fake')
+        plt.plot(real_plot_numpy[0, :, 0], color='red', label='real')
+        plt.plot(fake_plot_numpy[0, :, 0], color='blue', label='fake')
         plt.legend()
         plt.savefig('log/real_fake.png')
         plt.close()
