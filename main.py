@@ -211,16 +211,20 @@ for epoch in range(opt.epochs):
         writer.add_scalar('D of G of z', D_G_z1, niter)
         
     ##### End of the epoch #####
-    real_plot = time_series_to_plot(dataset.denormalize(real_display), titles='real.png')
+    real_plot = time_series_to_plot(dataset.denormalize(real_display))
     if (epoch % opt.tensorboard_image_every == 0) or (epoch == (opt.epochs - 1)):
         writer.add_image("Real", real_plot, epoch)
     
     fake = netG(fixed_noise)
-    fake_plot = time_series_to_plot(dataset.denormalize(fake), titles='fake.png')
+    fake_plot = time_series_to_plot(dataset.denormalize(fake))
     # torchvision.utils.save_image(fake_plot, os.path.join(opt.imf, opt.run_tag+'_epoch'+str(epoch)+'.jpg'))
     if (epoch % opt.tensorboard_image_every == 0) or (epoch == (opt.epochs - 1)):
         writer.add_image("Fake", fake_plot, epoch)
-    
+    plt.plot(real_display, color='red', label='real')
+    plt.plot(fake, color='red', label='fake')
+    plt.legend()
+    plt.savefig('log/real_fake.png')
+    plt.close()
                              
     # Checkpoint
     if (epoch % opt.checkpoint_every == 0) or (epoch == (opt.epochs - 1)):
