@@ -6,13 +6,14 @@ import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torch.optim as optim
 import torch.utils.data
-import torchvision
+# import torchvision
 import datetime
 from btp_dataset import BtpDataset
 from utils import time_series_to_plot
 from tensorboardX import SummaryWriter
 from models.recurrent_models import LSTMGenerator, LSTMDiscriminator
 from models.convolutional_models import CausalConvGenerator, CausalConvDiscriminator
+import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default="btp", help='dataset to use (only btp for now)')
@@ -130,6 +131,7 @@ for epoch in range(opt.epochs):
         netD.zero_grad()
         real = data.to(device)
         batch_size, seq_len = real.size(0), real.size(1)
+        # gt ở đây, 1 là number of features.
         label = torch.full((batch_size, seq_len, 1), real_label, device=device)
         
         deltas = (real[:, -1] - real[:, 0]).unsqueeze(2).repeat(1, seq_len, 1)
@@ -192,12 +194,18 @@ for epoch in range(opt.epochs):
     real_plot = time_series_to_plot(dataset.denormalize(real_display))
     if (epoch % opt.tensorboard_image_every == 0) or (epoch == (opt.epochs - 1)):
         writer.add_image("Real", real_plot, epoch)
+        plt.plot(real_plot, color='red', label='real')
+
     
     fake = netG(fixed_noise)
     fake_plot = time_series_to_plot(dataset.denormalize(fake))
-    torchvision.utils.save_image(fake_plot, os.path.join(opt.imf, opt.run_tag+'_epoch'+str(epoch)+'.jpg'))
+    # torchvision.utils.save_image(fake_plot, os.path.join(opt.imf, opt.run_tag+'_epoch'+str(epoch)+'.jpg'))
     if (epoch % opt.tensorboard_image_every == 0) or (epoch == (opt.epochs - 1)):
         writer.add_image("Fake", fake_plot, epoch)
+        plt.plot(fake_plot, color='blue', label='fake')
+        plt.savefig('log/cvae_lstm.png')
+        plt.legend()
+        plt.close()
                              
     # Checkpoint
     if (epoch % opt.checkpoint_every == 0) or (epoch == (opt.epochs - 1)):
