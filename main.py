@@ -13,6 +13,7 @@ from utils import time_series_to_plot
 from tensorboardX import SummaryWriter
 from models.recurrent_models import LSTMGenerator, LSTMDiscriminator
 from models.convolutional_models import CausalConvGenerator, CausalConvDiscriminator
+import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default="btp", help='dataset to use (only btp for now)')
@@ -210,21 +211,16 @@ for epoch in range(opt.epochs):
         writer.add_scalar('D of G of z', D_G_z1, niter)
         
     ##### End of the epoch #####
-    real_plot = time_series_to_plot(dataset.denormalize(real_display))
+    real_plot = time_series_to_plot(dataset.denormalize(real_display), titles='real')
     if (epoch % opt.tensorboard_image_every == 0) or (epoch == (opt.epochs - 1)):
         writer.add_image("Real", real_plot, epoch)
     
     fake = netG(fixed_noise)
-    fake_plot = time_series_to_plot(dataset.denormalize(fake))
+    fake_plot = time_series_to_plot(dataset.denormalize(fake), titles='fake')
     # torchvision.utils.save_image(fake_plot, os.path.join(opt.imf, opt.run_tag+'_epoch'+str(epoch)+'.jpg'))
     if (epoch % opt.tensorboard_image_every == 0) or (epoch == (opt.epochs - 1)):
         writer.add_image("Fake", fake_plot, epoch)
     
-    plt.plot(real_plot, color='red', label='real')
-    plt.plot(fake_plot, color='blue', label='fake')
-    plt.savefig('log/cvae_lstm.png')
-    plt.legend()
-    plt.close()
                              
     # Checkpoint
     if (epoch % opt.checkpoint_every == 0) or (epoch == (opt.epochs - 1)):

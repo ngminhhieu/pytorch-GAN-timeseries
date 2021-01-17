@@ -28,6 +28,7 @@ def time_series_to_plot(time_series_batch, dpi=35, feature_idx=0, n_images_per_r
         data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
         data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
         images.append(data)
+        plt.savefig('log/'+titles)
         plt.close(fig)
 
     #Swap channel

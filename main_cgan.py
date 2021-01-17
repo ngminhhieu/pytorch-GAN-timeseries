@@ -13,7 +13,6 @@ from utils import time_series_to_plot
 from tensorboardX import SummaryWriter
 from models.recurrent_models import LSTMGenerator, LSTMDiscriminator
 from models.convolutional_models import CausalConvGenerator, CausalConvDiscriminator
-import matplotlib.pyplot as plt
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default="btp", help='dataset to use (only btp for now)')
