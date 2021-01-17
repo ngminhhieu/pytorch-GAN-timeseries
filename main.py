@@ -222,8 +222,8 @@ for epoch in range(opt.epochs):
         writer.add_image("Fake", fake_plot, epoch)
     
     if epoch == (opt.epochs - 1):
-        real_plot_numpy = denormalize(real_display).detach().numpy()
-        fake_plot_numpy = denormalize(fake).detach().numpy()
+        real_plot_numpy = dataset.denormalize(real_display).detach().numpy()
+        fake_plot_numpy = dataset.denormalize(fake).detach().numpy()
         plt.plot(real_plot_numpy[:, :, 0], color='red', label='real')
         plt.plot(fake_plot_numpy[:, :, 0], color='blue', label='fake')
         plt.legend()
