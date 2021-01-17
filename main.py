@@ -213,12 +213,17 @@ for epoch in range(opt.epochs):
     real_plot = time_series_to_plot(dataset.denormalize(real_display))
     if (epoch % opt.tensorboard_image_every == 0) or (epoch == (opt.epochs - 1)):
         writer.add_image("Real", real_plot, epoch)
+        plt.plot(real_plot, color='red', label='real')
     
     fake = netG(fixed_noise)
     fake_plot = time_series_to_plot(dataset.denormalize(fake))
     # torchvision.utils.save_image(fake_plot, os.path.join(opt.imf, opt.run_tag+'_epoch'+str(epoch)+'.jpg'))
     if (epoch % opt.tensorboard_image_every == 0) or (epoch == (opt.epochs - 1)):
         writer.add_image("Fake", fake_plot, epoch)
+        plt.plot(fake_plot, color='blue', label='fake')
+        plt.savefig('log/cvae_lstm.png')
+        plt.legend()
+        plt.close()
                              
     # Checkpoint
     if (epoch % opt.checkpoint_every == 0) or (epoch == (opt.epochs - 1)):
