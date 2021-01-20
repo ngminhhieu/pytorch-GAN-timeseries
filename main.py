@@ -19,10 +19,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--dataset', default="btp", help='dataset to use (only btp for now)')
 parser.add_argument('--dataset_path', required=True, help='path to dataset')
 parser.add_argument('--workers', type=int, help='number of data loading workers', default=2)
-parser.add_argument('--batchSize', type=int, default=16, help='input batch size')
-parser.add_argument('--nz', type=int, default=100, help='dimensionality of the latent vector z')
-parser.add_argument('--epochs', type=int, default=1, help='number of epochs to train for')
-parser.add_argument('--lr', type=float, default=0.0002, help='learning rate, default=0.0002')
+parser.add_argument('--batchSize', type=int, default=256, help='input batch size') #chinh
+parser.add_argument('--nz', type=int, default=100, help='dimensionality of the latent vector z') #chinh
+parser.add_argument('--epochs', type=int, default=100, help='number of epochs to train for') # chinh
+parser.add_argument('--lr', type=float, default=0.00001, help='learning rate, default=0.0002') # chinh
 parser.add_argument('--cuda', action='store_true', help='enables cuda')
 parser.add_argument('--netG', default='', help="path to netG (to continue training)")
 parser.add_argument('--netD', default='', help="path to netD (to continue training)")
@@ -34,7 +34,7 @@ parser.add_argument('--run_tag', default='', help='tags for the current run')
 parser.add_argument('--checkpoint_every', default=5, help='number of epochs after which saving checkpoints') 
 parser.add_argument('--tensorboard_image_every', default=5, help='interval for displaying images on tensorboard') 
 parser.add_argument('--delta_condition', action='store_true', help='whether to use the mse loss for deltas')
-parser.add_argument('--delta_lambda', type=int, default=10, help='weight for the delta condition')
+parser.add_argument('--delta_lambda', type=int, default=10, help='weight for the delta condition') # chinh
 parser.add_argument('--alternate', action='store_true', help='whether to alternate between adversarial and mse loss in generator')
 parser.add_argument('--dis_type', default='cnn', choices=['cnn','lstm'], help='architecture to be used for discriminator to use')
 parser.add_argument('--gen_type', default='lstm', choices=['cnn','lstm'], help='architecture to be used for generator to use')
