@@ -22,15 +22,15 @@ class BtpDataset(Dataset):
         pm_dataset = pm_dataset.to_numpy()
         pm_data = pm_dataset[:, 4:5]
         pm_data = pm_data.astype(np.float)
-        # data_for_lstm = np.empty(shape=(pm_data.shape[0]-seq_len, seq_len, pm_data.shape[1]-1))
+        # data_for_lstm = np.empty(shape=(pm_data.shape[0]-seq_len, seq_len, pm_data.shape[1]))
         # for i in range(pm_data.shape[0]-seq_len):
-        #     data_for_lstm[i, :, :] = pm_data[i:i+seq_len, 1:]
+        #     data_for_lstm[i, :, :] = pm_data[i:i+seq_len, :]
         # data_for_lstm = torch.from_numpy(data_for_lstm).float()
         # self.data = self.normalize(data_for_lstm) if normalize else data_for_lstm
 
-        data_for_lstm = np.empty(shape=(data.shape[0]-seq_len, seq_len, data.shape[1]-1))
+        data_for_lstm = np.empty(shape=(data.shape[0]-seq_len, seq_len, data.shape[1]))
         for i in range(data.shape[0]-seq_len):
-            data_for_lstm[i, :, :] = data[i:i+seq_len, 1:]
+            data_for_lstm[i, :, :] = data[i:i+seq_len, :]
         data_for_lstm = torch.from_numpy(data_for_lstm).float()
         self.data = self.normalize(data_for_lstm) if normalize else data_for_lstm
         
